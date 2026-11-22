@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, local_time %}
+{% block title %}{{ u.name }} · Admin · Times Blitz{% endblock %}
+{% block content %}
+<div class="page wide">
+  <header class="topbar">
+    <div class="brand"><span class="brand-x">×</span> Times Blitz <span class="tag">Admin</span></div>
+    <a class="link" href="{{ url_for('admin_dashboard') }}">&larr; All players</a>
+  </header>
+
+  <h1 class="hello">{{ u.name }}</h1>
+  <p class="lead">
+    Password <span class="mono pill">{{ u.password }}</span>
+    &middot; {{ 'Active' if u.active else 'Paused' }}
+  </p>
+
+  <div class="grid-2">
+    <section class="card">
+      <div class="section-label">Overview</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-val">{{ run_count }}</div><div class="stat-label">Runs</div></div>
+        <div class="stat"><div class="stat-val">{{ answered }}</div><div class="stat-label">Answers</div></div>
+        <div class="stat"><div class="stat-val">{% if accuracy is not none %}{{ accuracy }}%{% else %}&mdash;{% endif %}</div><div class="stat-label">Accuracy</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-label">Most missed facts</div>
+      {% if missed %}
+        <ul class="missed">
+          {% for pair, n in missed %}
+            <li><span>{{ pair[0] }} × {{ pair[1] }} = {{ pair[0] * pair[1] }}</span><span class="muted">{{ n }}&times;</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No mistakes recorded yet.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card table-card">
+    {% if runs %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>When</th><th>Quiz</th><th>Tables</th><th>Score</th><th>Accuracy</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for r in runs %}
+          <tr>
+            <td class="nowrap">{{ local_time(r.created_at) }}</td>
+            <td>{{ r.setting }}</td>
+            <td>{{ r.tables }}</td>
+            <td><strong>{{ r.score }}</strong></td>
+            <td>{{ r.accuracy }}%</td>
+            <td>{{ '%.0f'|format(r.duration) }}s</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted empty">No quizzes played yet.</p>
+    {% endif %}
+  </section>
+
+  {% if runs %}
+  <form method="post" action="{{ url_for('admin_clear_scores', user_id=u.id) }}"
+        data-confirm="Clear all scores for {{ u.name }}? This can't be undone.">
+    {{ csrf() }}
+    <button class="btn danger sm" type="submit">Clear all scores</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

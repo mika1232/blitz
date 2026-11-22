@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Password slips · Times Blitz{% endblock %}
+{% block content %}
+<div class="page wide">
+  <div class="toolbar no-print">
+    <a class="link" href="{{ url_for('admin_dashboard') }}">&larr; Back to admin</a>
+    <button type="button" class="btn primary sm" data-print>Print</button>
+  </div>
+
+  {% if users %}
+  <div class="slips">
+    {% for u in users %}
+    <div class="slip">
+      <div class="slip-brand"><span class="brand-x">×</span> Times Blitz</div>
+      <div class="slip-name">{{ u.name }}</div>
+      <div class="slip-label">Your password</div>
+      <div class="slip-pw mono">{{ u.password }}</div>
+      <div class="slip-url">{{ request.host_url }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p class="muted empty">No active players yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

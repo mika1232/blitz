@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Quiz · Times Blitz{% endblock %}
+{% block content %}
+<main id="quiz" class="quiz"
+      data-mode="{{ mode }}"
+      data-target="{{ n }}"
+      data-tables="{{ tables|join(',') }}"
+      data-save-url="{{ url_for('api_score') }}">
+
+  <header class="quiz-top">
+    <a class="icon-btn" href="{{ url_for('index') }}" aria-label="Quit quiz">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress-label" id="progress-label" aria-live="off">&nbsp;</div>
+    <div class="score-pill" id="score-pill" title="Correct answers">0</div>
+  </header>
+  <div class="bar" aria-hidden="true"><div class="bar-fill" id="bar-fill"></div></div>
+
+  <section class="stage" id="stage">
+    <div class="question" id="question" aria-live="polite">
+      <span id="q-a">0</span><span class="op">×</span><span id="q-b">0</span>
+    </div>
+    <div class="answer" aria-label="Your answer">
+      <span id="answer-text"></span><span class="caret" aria-hidden="true"></span>
+    </div>
+    <div class="feedback" id="feedback" aria-live="polite">&nbsp;</div>
+  </section>
+
+  <div class="keypad" id="keypad">
+    {% for d in ['1','2','3','4','5','6','7','8','9'] %}
+      <button type="button" class="key" data-key="{{ d }}">{{ d }}</button>
+    {% endfor %}
+    <button type="button" class="key key-del" data-key="back" aria-label="Delete">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="m17 9-6 6M11 9l6 6"/></svg>
+    </button>
+    <button type="button" class="key" data-key="0">0</button>
+    <button type="button" class="key go" data-key="go">Go</button>
+  </div>
+
+  <div class="overlay" id="countdown" aria-live="assertive">
+    <div class="count-num" id="count-num">3</div>
+  </div>
+
+  <section class="results" id="results" hidden>
+    <h2 class="res-title" id="res-title"></h2>
+    <div class="res-main">
+      <div class="res-big" id="res-big"></div>
+      <div class="res-sub" id="res-sub"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="stat-1-val"></div><div class="stat-label" id="stat-1-label"></div></div>
+      <div class="stat"><div class="stat-val" id="stat-2-val"></div><div class="stat-label" id="stat-2-label"></div></div>
+      <div class="stat"><div class="stat-val" id="stat-3-val"></div><div class="stat-label" id="stat-3-label"></div></div>
+    </div>
+    <p class="pb-note" id="pb-note" hidden></p>
+    <div class="mistakes" id="mistakes" hidden>
+      <div class="section-label">Worth another look</div>
+      <ul id="mistakes-list"></ul>
+    </div>
+    <div class="res-actions">
+      <a class="btn primary big" href="{{ url_for('quiz', mode=mode, n=n, tables=tables|join(',')) }}">Play again</a>
+      <a class="btn ghost big" href="{{ url_for('index') }}">Change settings</a>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='quiz.js') }}" defer></script>
+{% endblock %}

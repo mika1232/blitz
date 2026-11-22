@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, local_time %}
+{% block title %}Times Blitz{% endblock %}
+{% block content %}
+<main class="page" id="setup"
+      data-quiz-url="{{ url_for('quiz') }}"
+      data-tables="{{ tables|join(',') }}"
+      data-count-range="{{ count_range|join(',') }}"
+      data-time-range="{{ time_range|join(',') }}">
+
+  <header class="topbar">
+    <div class="brand"><span class="brand-x">×</span> Times Blitz</div>
+    <form method="post" action="{{ url_for('logout') }}">
+      {{ csrf() }}
+      <button class="btn ghost sm" type="submit">Sign out</button>
+    </form>
+  </header>
+
+  <h1 class="hello">Hi, {{ user.name }}</h1>
+  <p class="lead">Pick your challenge, then go as fast as you can.</p>
+
+  <section class="card stack-lg">
+    <div>
+      <div class="section-label">Quiz me by</div>
+      <div class="segmented" role="group" aria-label="Quiz type">
+        <button type="button" data-mode="count" aria-pressed="true">Questions</button>
+        <button type="button" data-mode="time" aria-pressed="false">Time</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label" id="amount-label">How many questions?</div>
+
+      <div class="chips" id="amounts-count" role="group" aria-labelledby="amount-label">
+        {% for n in count_presets %}
+          <button type="button" class="chip" data-n="{{ n }}" aria-pressed="false">{{ n }}</button>
+        {% endfor %}
+        <label class="chip chip-input">
+          <span class="sr-only">Custom number of questions</span>
+          <input id="custom-count" type="number" inputmode="numeric"
+                 min="{{ count_range[0] }}" max="{{ count_range[1] }}" placeholder="Custom">
+        </label>
+      </div>
+
+      <div class="chips" id="amounts-time" role="group" aria-labelledby="amount-label" hidden>
+        {% for n in time_presets %}
+          <button type="button" class="chip" data-n="{{ n }}" aria-pressed="false">{{ n }}s</button>
+        {% endfor %}
+        <label class="chip chip-input">
+          <span class="sr-only">Custom time in seconds</span>
+          <input id="custom-time" type="number" inputmode="numeric"
+                 min="{{ time_range[0] }}" max="{{ time_range[1] }}" placeholder="Seconds">
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label row">
+        <span>Times tables</span>
+        <button type="button" class="link-btn" id="toggle-all">Clear all</button>
+      </div>
+      <div class="chips" id="tables" role="group" aria-label="Times tables">
+        {% for t in tables %}
+          <button type="button" class="chip num" data-table="{{ t }}" aria-pressed="true">{{ t }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="start-row">
+      <p class="summary" id="summary"></p>
+      <button type="button" class="btn primary big" id="start">Start</button>
+    </div>
+  </section>
+
+  {% if runs %}
+  <section class="recent">
+    <div class="section-label">Recent</div>
+    <ul class="runs">
+      {% for r in runs %}
+      <li>
+        <div>
+          <strong>{{ r.score }}</strong>
+          <span class="muted">· {{ r.setting }} · {{ r.accuracy }}%</span>
+        </div>
+        <div class="muted">{{ local_time(r.created_at) }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='menu.js') }}" defer></script>
+{% endblock %}

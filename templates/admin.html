@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, local_time %}
+{% block title %}Admin · Times Blitz{% endblock %}
+{% block content %}
+<div class="page wide">
+  <header class="topbar">
+    <div class="brand"><span class="brand-x">×</span> Times Blitz <span class="tag">Admin</span></div>
+    <nav class="nav">
+      <a class="link" href="{{ url_for('index') }}">Open app</a>
+      <a class="link" href="{{ url_for('admin_slips') }}" target="_blank" rel="noopener">Print password slips</a>
+      <form method="post" action="{{ url_for('admin_logout') }}">
+        {{ csrf() }}
+        <button class="btn ghost sm" type="submit">Sign out</button>
+      </form>
+    </nav>
+  </header>
+
+  <h1 class="hello">Players</h1>
+  <p class="lead">Players sign in with just their password. Passwords aren't case sensitive.</p>
+
+  <div class="grid-2">
+    <section class="card">
+      <div class="section-label">Add a player</div>
+      <form method="post" action="{{ url_for('admin_add_user') }}" class="stack">
+        {{ csrf() }}
+        <input class="field" name="name" placeholder="Name" maxlength="40" required>
+        <div class="pw-cell">
+          <input class="field mono" id="new-pw" name="password" placeholder="Password (blank = auto)"
+                 maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false">
+          <button type="button" class="btn ghost" data-generate data-target="#new-pw"
+                  data-url="{{ url_for('admin_generate_password') }}">Generate</button>
+        </div>
+        <button class="btn primary" type="submit">Add player</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="section-label">Add a whole class</div>
+      <form method="post" action="{{ url_for('admin_bulk_add') }}" class="stack">
+        {{ csrf() }}
+        <textarea class="field" name="names" rows="4" placeholder="One name per line.&#10;Passwords are generated for you."></textarea>
+        <button class="btn primary" type="submit">Add all</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="card table-card">
+    {% if users %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Password</th><th>Status</th><th>Runs</th><th>Accuracy</th><th>Last played</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for u in users %}
+          <tr class="{{ '' if u.active else 'row-off' }}">
+            <td>
+              <form id="upd-{{ u.id }}" method="post" action="{{ url_for('admin_update_user', user_id=u.id) }}">{{ csrf() }}</form>
+              <input class="field sm" form="upd-{{ u.id }}" name="name" value="{{ u.name }}" maxlength="40" required aria-label="Name">
+            </td>
+            <td>
+              <div class="pw-cell">
+                <input class="field sm mono" id="pw-{{ u.id }}" form="upd-{{ u.id }}" name="password" value="{{ u.password }}"
+                       maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Password">
+                <button type="button" class="btn ghost sm" data-generate data-target="#pw-{{ u.id }}"
+                        data-url="{{ url_for('admin_generate_password') }}">New</button>
+              </div>
+            </td>
+            <td><span class="badge {{ 'on' if u.active else 'off' }}">{{ 'Active' if u.active else 'Paused' }}</span></td>
+            <td>{{ u.runs }}</td>
+            <td>{% if u.accuracy is not none %}{{ u.accuracy }}%{% else %}&mdash;{% endif %}</td>
+            <td class="nowrap">{{ local_time(u.last_played) }}</td>
+            <td><div class="actions">
+              <button class="btn primary sm" form="upd-{{ u.id }}" type="submit">Save</button>
+              <a class="btn ghost sm" href="{{ url_for('admin_user', user_id=u.id) }}">Scores</a>
+              <form method="post" action="{{ url_for('admin_toggle_user', user_id=u.id) }}">
+                {{ csrf() }}<button class="btn ghost sm" type="submit">{{ 'Pause' if u.active else 'Resume' }}</button>
+              </form>
+              <form method="post" action="{{ url_for('admin_delete_user', user_id=u.id) }}"
+                    data-confirm="Delete {{ u.name }} and all of their scores?">
+                {{ csrf() }}<button class="btn danger sm" type="submit">Delete</button>
+              </form>
+            </div></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted empty">No players yet. Add one above to get started.</p>
+    {% endif %}
+  </section>
+
+  <section class="card narrow">
+    <div class="section-label">Change admin password</div>
+    <form method="post" action="{{ url_for('admin_password') }}" class="stack">
+      {{ csrf() }}
+      <input class="field" type="password" name="current" placeholder="Current password" autocomplete="current-password" required>
+      <input class="field" type="password" name="new" placeholder="New password (6+ characters)" autocomplete="new-password" minlength="6" required>
+      <input class="field" type="password" name="confirm" placeholder="Repeat new password" autocomplete="new-password" minlength="6" required>
+      <button class="btn primary" type="submit">Update password</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='admin.js') }}" defer></script>
+{% endblock %}

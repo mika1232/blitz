@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin sign in · Times Blitz{% endblock %}
+{% block body_class %}centered{% endblock %}
+{% block content %}
+<main class="auth">
+  <div class="brand big"><span class="brand-x">×</span> Times Blitz <span class="tag">Admin</span></div>
+  <p class="lead">Manage players and passwords.</p>
+
+  <form method="post" class="stack">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label class="sr-only" for="pw">Admin password</label>
+    <div class="field-wrap">
+      <input id="pw" name="password" type="password" class="field big" placeholder="Admin password"
+             autocomplete="current-password" autofocus required>
+      <button type="button" class="reveal" data-reveal="#pw">Show</button>
+    </div>
+    <button class="btn primary big" type="submit">Sign in</button>
+  </form>
+
+  <a class="subtle-link" href="{{ url_for('login') }}">Back to player sign in</a>
+</main>
+{% endblock %}

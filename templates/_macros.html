@@ -1,0 +1,11 @@
+{% macro csrf() -%}
+<input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{% macro local_time(iso) -%}
+{%- if iso -%}
+<time datetime="{{ iso }}">{{ iso[:16]|replace('T', ' ') }} UTC</time>
+{%- else -%}
+&mdash;
+{%- endif -%}
+{%- endmacro %}
